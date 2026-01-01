@@ -19,26 +19,32 @@ class _HomeState extends State<Home> {
     super.initState();
     loadModel().then((value) {
       setState(() {
-        // Model is loaded, but we wait for user to pick image
-        isLoading = false; 
+        isLoading = false;
       });
     });
   }
 
   // 1. Detect Image Function
   detectImage(File image) async {
-    // Set loading to true while detection happens (optional, for UI feedback)
+    // Run the model on the image
     var output = await Tflite.runModelOnImage(
       path: image.path,
       numResults: 2,
-      threshold: 0.05,
+      threshold: 0.6, // Anything less than 60% confident is ignored
       imageMean: 127.5,
       imageStd: 127.5,
     );
-    print("Result is: $output");
+
     setState(() {
-      _output = output;
-      // We don't need to toggle isLoading here for the image visibility logic anymore
+      // LOGIC: If output is empty (meaning confidence was too low),
+      // we force the label to be "Not a Cat or Dog".
+      if (output == null || output.isEmpty) {
+        _output = [
+          {"label": "Not a Cat or Dog"}
+        ];
+      } else {
+        _output = output;
+      }
     });
   }
 
@@ -56,7 +62,7 @@ class _HomeState extends State<Home> {
     if (image == null) return;
     setState(() {
       _image = File(image.path);
-      _output = null; // Reset previous result
+      _output = null; // Clear previous result to show "Detecting..."
     });
     detectImage(_image!);
   }
@@ -67,7 +73,7 @@ class _HomeState extends State<Home> {
     if (image == null) return;
     setState(() {
       _image = File(image.path);
-      _output = null; // Reset previous result
+      _output = null; // Clear previous result to show "Detecting..."
     });
     detectImage(_image!);
   }
@@ -83,7 +89,7 @@ class _HomeState extends State<Home> {
           children: <Widget>[
             SizedBox(height: 100),
             Text(
-              'WELCOME TO',
+              'Delta',
               style: TextStyle(color: Colors.black, fontSize: 25),
             ),
             SizedBox(height: 6),
@@ -97,14 +103,11 @@ class _HomeState extends State<Home> {
             ),
             SizedBox(height: 40),
             Center(
-              // CHANGE: Logic now checks if _image is null, not isLoading
               child: _image == null
                   ? Container(
                       width: 400,
                       child: Column(
                         children: <Widget>[
-                          // Ensure this matches the file name in your project folder!
-                          // Based on your screenshot, it looked like 'cat_dog_icon.png'
                           Image.asset('assets/cat_dog_image.png'),
                           SizedBox(height: 50),
                         ],
@@ -115,24 +118,27 @@ class _HomeState extends State<Home> {
                         children: <Widget>[
                           Container(
                             height: 250,
-                            child: Image.file(_image!), // Shows image immediately
+                            child: Image.file(_image!),
                           ),
                           SizedBox(height: 20),
+                          // Display Logic
                           _output != null
                               ? Text(
                                   "${_output![0]['label']}",
                                   style: TextStyle(
-                                    color: Colors.black,
+                                    color: _output![0]['label'] == "Not a Cat or Dog"
+                                        ? Colors.red // Red text if invalid
+                                        : Colors.black,
                                     fontSize: 20,
                                     fontWeight: FontWeight.bold,
                                   ),
                                 )
                               : Text(
-                                  "Detecting...", // Shows this while TFLite runs
+                                  "Detecting...",
                                   style: TextStyle(
-                                    color: Colors.grey, 
-                                    fontSize: 18
-                                  ), 
+                                    color: Colors.black,
+                                    fontSize: 18,
+                                  ),
                                 ),
                           SizedBox(height: 10),
                         ],
@@ -150,7 +156,8 @@ class _HomeState extends State<Home> {
                     child: Container(
                       width: MediaQuery.of(context).size.width - 250,
                       alignment: Alignment.center,
-                      padding: EdgeInsets.symmetric(vertical: 16, horizontal: 24),
+                      padding:
+                          EdgeInsets.symmetric(vertical: 16, horizontal: 24),
                       decoration: BoxDecoration(
                         color: Colors.blue,
                         borderRadius: BorderRadius.circular(6),
@@ -169,7 +176,8 @@ class _HomeState extends State<Home> {
                     child: Container(
                       width: MediaQuery.of(context).size.width - 250,
                       alignment: Alignment.center,
-                      padding: EdgeInsets.symmetric(vertical: 16, horizontal: 24),
+                      padding:
+                          EdgeInsets.symmetric(vertical: 16, horizontal: 24),
                       decoration: BoxDecoration(
                         color: Colors.blue,
                         borderRadius: BorderRadius.circular(6),
