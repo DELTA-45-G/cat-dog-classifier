@@ -4,12 +4,12 @@ import 'package:tflite_v2/tflite_v2.dart';
 import 'package:image_picker/image_picker.dart';
 
 class Home extends StatefulWidget {
-  const Home({Key? key}) : super(key: key);
+  const Home({super.key});
   @override
-  _HomeState createState() => _HomeState();
+  HomeState createState() => HomeState();
 }
 
-class _HomeState extends State<Home> {
+class HomeState extends State<Home> {
   bool isLoading = true;
   File? _image;
   List? _output;
@@ -27,7 +27,7 @@ class _HomeState extends State<Home> {
   }
 
   // 1. Detect Image Function
-  detectImage(File image) async {
+  Future<void>detectImage(File image) async {
     // Run the model on the image
     var output = await Tflite.runModelOnImage(
       path: image.path,
@@ -52,7 +52,7 @@ class _HomeState extends State<Home> {
   }
 
   // 2. Load Model Function
-  loadModel() async {
+Future<void> loadModel() async {
     await Tflite.loadModel(
       model: 'assets/model_unquant.tflite',
       labels: 'assets/labels.txt',
@@ -60,7 +60,7 @@ class _HomeState extends State<Home> {
   }
 
   // 3. Pick Image from Camera
-  pickImage() async {
+Future<void>  pickImage() async {
     var image = await picker.pickImage(source: ImageSource.camera);
     if (image == null) return;
     if(!mounted) return;
@@ -72,7 +72,7 @@ class _HomeState extends State<Home> {
   }
 
   // 4. Pick Image from Gallery
-  pickGalleryImage() async {
+Future<void>  pickGalleryImage() async {
     var image = await picker.pickImage(source: ImageSource.gallery);
     if (image == null) return;
     if(!mounted) return;
@@ -109,7 +109,7 @@ class _HomeState extends State<Home> {
             SizedBox(height: 40),
             Center(
               child: _image == null
-                  ? Container(
+                  ? SizedBox(
                       width: 400,
                       child: Column(
                         children: <Widget>[
@@ -118,10 +118,10 @@ class _HomeState extends State<Home> {
                         ],
                       ),
                     )
-                  : Container(
+                  : SizedBox(
                       child: Column(
                         children: <Widget>[
-                          Container(
+                          SizedBox(
                             height: 250,
                             child: Image.file(_image!),
                           ),
@@ -150,7 +150,7 @@ class _HomeState extends State<Home> {
                       ),
                     ),
             ),
-            Container(
+            SizedBox(
               width: MediaQuery.of(context).size.width,
               child: Column(
                 children: <Widget>[
