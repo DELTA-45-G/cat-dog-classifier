@@ -2,16 +2,18 @@ import 'package:flutter/material.dart';
 import 'package:cat_dog_classifier/home.dart';
 
 class MySplash extends StatefulWidget {
+  const MySplash({super.key});
   @override
-  State<MySplash> createState() => _MySplashState();
+  State<MySplash> createState() => MySplashState();
 }
 
-class _MySplashState extends State<MySplash> {
+class MySplashState extends State<MySplash> {
 
   @override
   void initState() {
     super.initState();
     Future.delayed(Duration(seconds: 3), () {
+      if(!mounted) return;
       Navigator.pushReplacement(context, MaterialPageRoute(builder: (_) => Home()));
     });
   }
