@@ -4,6 +4,7 @@ import 'package:tflite_v2/tflite_v2.dart';
 import 'package:image_picker/image_picker.dart';
 
 class Home extends StatefulWidget {
+  const Home({Key? key}) : super(key: key);
   @override
   _HomeState createState() => _HomeState();
 }
@@ -18,6 +19,7 @@ class _HomeState extends State<Home> {
   void initState() {
     super.initState();
     loadModel().then((value) {
+      if(!mounted) return;
       setState(() {
         isLoading = false;
       });
@@ -34,6 +36,7 @@ class _HomeState extends State<Home> {
       imageMean: 127.5,
       imageStd: 127.5,
     );
+    if(!mounted) return;
 
     setState(() {
       // LOGIC: If output is empty (meaning confidence was too low),
@@ -60,6 +63,7 @@ class _HomeState extends State<Home> {
   pickImage() async {
     var image = await picker.pickImage(source: ImageSource.camera);
     if (image == null) return;
+    if(!mounted) return;
     setState(() {
       _image = File(image.path);
       _output = null; // Clear previous result to show "Detecting..."
@@ -71,6 +75,7 @@ class _HomeState extends State<Home> {
   pickGalleryImage() async {
     var image = await picker.pickImage(source: ImageSource.gallery);
     if (image == null) return;
+    if(!mounted) return;
     setState(() {
       _image = File(image.path);
       _output = null; // Clear previous result to show "Detecting..."
