@@ -14,13 +14,15 @@ subprojects {
 }
 
 // 👇 MOVED UP: This forces the plugins to use Android SDK 36.
-// It must be BEFORE "evaluationDependsOn" to work correctly.
 subprojects {
-    project.afterEvaluate {
-        project.extensions.findByType(com.android.build.gradle.BaseExtension::class.java)?.apply {
-            compileSdkVersion(36)
-            if(namespace == null){
-                namespace = project.group.toString()
+    afterEvaluate {
+        extensions.findByName("android")?.let { ext ->
+            (ext as? com.android.build.gradle.BaseExtension)?.apply {
+                compileSdkVersion(36)
+
+                if (namespace == null) {
+                    namespace = project.group.toString()
+                }
             }
         }
     }
